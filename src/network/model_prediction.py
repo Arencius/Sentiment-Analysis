@@ -8,12 +8,13 @@ from typing import List
 
 def predict_sentiment(model: Sequential, text: str, sentiments: List, max_length: int, vocab: dict):
     """
-    Given the text, neural network predicts the sentiment
-    :param model:
-    :param text:
+    Function predicts the sentiment of the given text using the pretrained neural network
+    :param model: trained model
+    :param text: text to predict the sentiment
     :param sentiments:
-    :param max_length:
-    :return:
+    :param max_length: max length of the sentence
+    :param vocab: vocabulary of all learnt words
+    :return: predicted sentiment with the confidence
     """
     tokenized = [[word2token(vocab, word) for word in lemmatize_sentence(text.lower())]]
     preprocessed_text = pad_sequences(tokenized, maxlen=max_length, padding='post')
