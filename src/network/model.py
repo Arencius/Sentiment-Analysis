@@ -9,7 +9,7 @@ import nltk
 nltk.download('popular')
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
-from src.network.embeddings import word2vec_model
+from gensim.models import Word2Vec
 from src.network.preprocessing import get_raw_dataset, prepare_dataset
 
 # TODO usunac imblearn
@@ -29,7 +29,7 @@ dataset = get_raw_dataset()
 sentences, labels = prepare_dataset(dataset, MAX_LENGTH)
 
 # creating embedding model
-word2vec_model = word2vec_model(sentences, MAX_LENGTH)
+word2vec_model = Word2Vec(sentences, size = MAX_LENGTH, window=5, min_count=4, workers=4)
 
 WEIGHTS = word2vec_model.wv.vectors
 VOCABULARY_SIZE, EMBEDDING_SIZE = WEIGHTS.shape  # 42 145 words in the vocabulary
