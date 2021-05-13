@@ -46,7 +46,7 @@ def preprocess_tweet(tweet: str) -> str:
     return re.sub(pattern, '', tweet).lower().strip()
 
 
-def word2token(vocab, word: str) -> int:
+def word2token(vocab: dict, word: str) -> int:
     """
     Transforms the word to integer based on its index in the vocabulary. Returns 0 if not in vocab
     :param vocab: vocabulary of the trained word2vec model
