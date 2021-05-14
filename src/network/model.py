@@ -26,15 +26,15 @@ sentences, labels = prepare_dataset(dataset, MAX_LENGTH)
 word2vec_model = Word2Vec(sentences, size=MAX_LENGTH, window=5, min_count=4, workers=4)
 word2vec_model.save('word2vec.model')
 
-WEIGHTS = word2vec_model.wv.vectors
-VOCABULARY_SIZE, EMBEDDING_SIZE = WEIGHTS.shape  # 42 145 words in the vocabulary
+WEIGHTS = word2vec_model.wv.vectors  # embedding matrix
+VOCABULARY_SIZE, EMBEDDING_SIZE = WEIGHTS.shape
 
 # weights to balance the classes
 class_weights = dict(enumerate(compute_class_weight('balanced', np.unique(labels), labels)))
 
 # splitting the dataset
 tweets_train, tweets_test, labels_train, labels_test = train_test_split(sentences, labels,
-                                                                        test_size=0.35, stratify=labels)
+                                                                        test_size=0.3, stratify=labels)
 tweets_valid, tweets_test, labels_valid, labels_test = train_test_split(tweets_test, labels_test,
                                                                         test_size=0.5, stratify=labels_test)
 
@@ -44,8 +44,8 @@ CLASS_NUM = len(set(labels_train))
 model = Sequential([Embedding(input_dim=VOCABULARY_SIZE, output_dim=EMBEDDING_SIZE,
                               weights=[WEIGHTS],
                               input_length=MAX_LENGTH),
+                    Bidirectional(LSTM(units=64, return_sequences=True, dropout=0.15)),
                     Bidirectional(LSTM(units=128, return_sequences=True, dropout=0.2)),
-                    Bidirectional(LSTM(units=256, return_sequences=True, dropout=0.25)),
                     GlobalAveragePooling1D(),
                     Dense(units=CLASS_NUM, activation='softmax')])
 
