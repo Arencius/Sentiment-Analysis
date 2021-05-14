@@ -118,8 +118,9 @@ def prepare_dataset(data: pd.DataFrame, max_length):
     # cleaning the sentences, i.e. removing punctuation, hashtags etc.
     data['text'] = data['text'].apply(preprocess_tweet)
 
-    # lemmatization and tokenizing the sentences
+    # filtering, lemmatization and tokenizing the sentences
     texts = np.array(data['text'])
+    texts = [filter_stopwords(sentence) for sentence in texts]
     texts_tokens = [lemmatize_sentence(sentence) for sentence in texts]
 
     texts_numerical = [[word2token(word) for word in sentence] for sentence in texts_tokens]
