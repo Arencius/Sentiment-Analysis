@@ -6,6 +6,7 @@ from sklearn.utils import shuffle
 from sklearn.preprocessing import LabelEncoder
 from pywsd.utils import lemmatize_sentence
 from keras.preprocessing.sequence import pad_sequences
+from nltk.corpus import stopwords
 
 
 def load_sentiment_data(path: str, value: str) -> pd.DataFrame:
@@ -66,12 +67,22 @@ def token2word(word2vec: Word2Vec, token: int) -> str:
     return word2vec.wv.index2word[token]
 
 
-def get_raw_dataset():
+def filter_stopwords(sentence: str) -> str:
+    """
+    Removes stop words from the given sentence
+    :param sentence: raw sentence
+    :return: sentence after removing the stop words
+    """
+    stop_words = stopwords.words('english')
+    return ' '.join([word for word in sentence if not word in stop_words])
+
+
+def get_raw_dataset() -> pd.DataFrame:
     """
     Loads and returns concatenated dataset from the ./data folder
     :return:
     """
-    # Simple sentences to train the network about differences in TODO dokonczyc
+    # Simple additional sentences to train the network the differences in understanding 'good' and 'bad'
     texts = ['not good not bad', 'not great not terrible', 'good and bad', 'could be better', 'could be worse',
              'I thought it would be terrible but it was good',
              'not bad not good', 'it was good', 'it was not good', 'it was bad', 'it was not bad', 'it was nice']
@@ -87,39 +98,39 @@ def get_raw_dataset():
     negative_data = load_sentiment_data('../data/My Drive/processedNegative.csv', value='negative')
 
     # loading the movie reviews dataset
-    imdb_data = imdb_data = pd.read_csv('../data/IMDB Dataset.csv', names = ['text', 'sentiment'], header=0)
+    imdb_data = pd.read_csv('../data/IMDB Dataset.csv', names = ['text', 'sentiment'], header=0)
 
     # loading the twitter dataset
-    tweets_data = pd.read_csv('../data/Tweets.csv')
-    tweets_data = tweets_data[['text', 'airline_sentiment']].rename(columns={'airline_sentiment': 'sentiment'})
+    tweets = pd.read_csv('../data/Tweets.csv')
+    tweets = tweets[['text', 'airline_sentiment']].rename(columns={'airline_sentiment': 'sentiment'})
 
-    return shuffle(pd.concat([negative_data, neutral_data, positive_data, imdb_data, sentences, tweets_data]))
+    return shuffle(pd.concat([negative_data, neutral_data, positive_data, imdb_data, sentences, tweets]))
 
 
 def prepare_dataset(data: pd.DataFrame, max_length):
     """
-    Preprocesses the dataset.
-
+    Preprocesses the dataset by lemmatizing and padding the sentences.
     :param data: dataset
     :param max_length: max length of the sentence, needed in padding
-    :return:
+    :return: fully preprocessed dataset, split into sentences and labels
     """
+
     # cleaning the sentences, i.e. removing punctuation, hashtags etc.
     data['text'] = data['text'].apply(preprocess_tweet)
 
-    # prepare sentences
-    tweets = np.array(data['text'])
-    tweets_tokens = [lemmatize_sentence(sentence) for sentence in tweets]
+    # lemmatization and tokenizing the sentences
+    texts = np.array(data['text'])
+    texts_tokens = [lemmatize_sentence(sentence) for sentence in texts]
 
-    tweets_numerical = [[word2token(word) for word in sentence] for sentence in tweets_tokens]
+    texts_numerical = [[word2token(word) for word in sentence] for sentence in texts_tokens]
 
     # padding the sentences with zeros at the end so every sentence has the same length
-    tweets_padded = pad_sequences(tweets_numerical, maxlen=max_length, padding='post')
+    texts_padded = pad_sequences(texts_numerical, maxlen=max_length, padding='post')
 
-    # prepare labels
+    # encode labels to integer form
     encoder = LabelEncoder()
 
     labels = np.array(data['sentiment'])
     labels = encoder.fit_transform(labels)
 
-    return tweets_numerical, labels
+    return texts_padded, labels
