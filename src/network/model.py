@@ -5,8 +5,9 @@ from keras.models import Sequential
 from keras.layers import Dense, Bidirectional, LSTM, Embedding, GlobalAveragePooling1D
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.preprocessing.sequence import pad_sequences
 from gensim.models import Word2Vec
-from src.network.preprocessing import get_raw_dataset, prepare_dataset
+from src.network.preprocessing import get_raw_dataset, prepare_dataset, word2token
 
 # predefined constants
 MAX_LENGTH = 50
@@ -20,14 +21,22 @@ CALLBACKS = [EarlyStopping(monitor='val_accuracy', mode='max', patience=8, verbo
 
 # loading and preprocessing the dataset
 dataset = get_raw_dataset()
-sentences, labels = prepare_dataset(dataset, MAX_LENGTH)
+sentences, labels = prepare_dataset(dataset)
 
 # creating embedding model
 word2vec_model = Word2Vec(sentences, size=MAX_LENGTH, window=5, min_count=4, workers=4)
 word2vec_model.save('word2vec.model')
 
-WEIGHTS = word2vec_model.wv.vectors  # embedding matrix
+# variables obtained with word2vec embedding model
+VOCAB = word2vec_model.wv.vocab
+WEIGHTS = word2vec_model.wv.vectors         # embedding matrix
 VOCABULARY_SIZE, EMBEDDING_SIZE = WEIGHTS.shape
+
+# tokenization of the sentences
+sentences = [[word2token(word, VOCAB) for word in sentence] for sentence in sentences]
+
+# padding the sentences with zeros at the end so every sentence has the same length
+sentences = pad_sequences(sentences, maxlen=MAX_LENGTH, padding='post')
 
 # weights to balance the classes
 class_weights = dict(enumerate(compute_class_weight('balanced', np.unique(labels), labels)))

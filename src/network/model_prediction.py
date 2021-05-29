@@ -11,10 +11,10 @@ def predict_sentiment(model: Sequential, text: str, sentiments: List, max_length
     Function predicts the sentiment of the given text using the pretrained neural network
     :param model: trained model
     :param text: text to predict the sentiment
-    :param sentiments:
+    :param sentiments: list of sentiments - positive, negative and neutral
     :param max_length: max length of the sentence
     :param vocab: vocabulary of all learnt words
-    :return: predicted sentiment with the confidence
+    :return: predicted sentiment of the sentence with the confidence
     """
     tokenized = [[word2token(vocab, word) for word in lemmatize_sentence(text.lower())]]
     preprocessed_text = pad_sequences(tokenized, maxlen=max_length, padding='post')
