@@ -16,7 +16,7 @@ BATCH_SIZE = 128
 LEARNING_RATE = 0.00075
 OPTIMIZER = Adam(LEARNING_RATE)
 
-CALLBACKS = [EarlyStopping(monitor='val_accuracy', mode='max', patience=8, verbose=1, restore_best_weights=True),
+CALLBACKS = [EarlyStopping(monitor='val_accuracy', mode='max', patience=5, verbose=1, restore_best_weights=True),
              ModelCheckpoint('model.h5', monitor='val_accuracy', save_best_only=True)]
 
 # loading and preprocessing the dataset

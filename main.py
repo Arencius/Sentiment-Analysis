@@ -8,7 +8,6 @@ from src.gui.gui_window import App
 if __name__ == '__main__':
     MAX_LENGTH = 50
 
-    # TODO fix this
     logging.disable(logging.ERROR)
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 

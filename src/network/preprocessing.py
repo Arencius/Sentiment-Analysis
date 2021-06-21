@@ -92,15 +92,15 @@ def get_raw_dataset() -> pd.DataFrame:
               'sentiment': sentiments}
 
     # loading additional data
-    neutral_data = load_sentiment_data('../data/processedNeutral.csv', value='neutral')
-    positive_data = load_sentiment_data('../data/processedPositive.csv', value='positive')
-    negative_data = load_sentiment_data('../data/My Drive/processedNegative.csv', value='negative')
+    neutral_data = load_sentiment_data('src/data/processedNeutral.csv', value='neutral')
+    positive_data = load_sentiment_data('src/data/processedPositive.csv', value='positive')
+    negative_data = load_sentiment_data('src/data/processedNegative.csv', value='negative')
 
     # loading the movie reviews dataset
-    imdb_data = pd.read_csv('../data/IMDB Dataset.csv', names = ['text', 'sentiment'], header=0)
+    imdb_data = pd.read_csv('src/data/IMDB Dataset.csv', names = ['text', 'sentiment'], header=0)
 
     # loading the twitter dataset
-    tweets = pd.read_csv('../data/Tweets.csv')
+    tweets = pd.read_csv('src/data/Tweets.csv')
     tweets = tweets[['text', 'airline_sentiment']].rename(columns={'airline_sentiment': 'sentiment'})
 
     return shuffle(pd.concat([negative_data, neutral_data, positive_data, imdb_data, sentences, tweets]))
